@@ -1,0 +1,59 @@
+{'label': '\\frac frac{ 1 frac} frac{ 3 frac}', 'file': '0_019.png'}
+{'label': '\\frac frac{ 1 frac} frac{ 3 frac}', 'file': '0_043.png'}
+{'label': '\\frac frac{ 9 frac} frac{ 13 frac}', 'file': '10_006.png'}
+{'label': '\\frac frac{ 9 frac} frac{ 13 frac}', 'file': '10_038.png'}
+{'label': '\\frac frac{ 9 frac} frac{ 13 frac}', 'file': '10_092.png'}
+{'label': '\\frac frac{ 3 frac} frac{ 4 frac}', 'file': '11_014.png'}
+{'label': '\\frac frac{ 3 frac} frac{ 4 frac}', 'file': '11_074.png'}
+{'label': '- \\frac frac{ 21 frac} frac{ 54 frac}', 'file': '12_025.png'}
+{'label': '- \\frac frac{ 21 frac} frac{ 54 frac}', 'file': '12_051.png'}
+{'label': '\\frac frac{ 5 frac} frac{ 3 frac}', 'file': '13_021.png'}
+{'label': '\\frac frac{ 5 frac} frac{ 3 frac}', 'file': '13_026.png'}
+{'label': '\\frac frac{ 5 frac} frac{ 3 frac}', 'file': '13_038.png'}
+{'label': '- \\frac frac{ 59 frac} frac{ 5 frac}', 'file': '14_017.png'}
+{'label': '- \\frac frac{ 59 frac} frac{ 5 frac}', 'file': '14_052.png'}
+{'label': '- \\frac frac{ 59 frac} frac{ 5 frac}', 'file': '14_089.png'}
+{'label': '\\frac frac{ 13 frac} frac{ 7 frac}', 'file': '15_003.png'}
+{'label': '\\frac frac{ 13 frac} frac{ 7 frac}', 'file': '15_067.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 5 frac}', 'file': '16_044.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 5 frac}', 'file': '16_069.png'}
+{'label': '\\frac frac{ 13 frac} frac{ 6 frac}', 'file': '17_022.png'}
+{'label': '\\frac frac{ 13 frac} frac{ 6 frac}', 'file': '17_045.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 51 frac}', 'file': '18_003.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 51 frac}', 'file': '18_021.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 51 frac}', 'file': '18_066.png'}
+{'label': '\\frac frac{ 3 frac} frac{ 10 frac}', 'file': '19_043.png'}
+{'label': '\\frac frac{ 3 frac} frac{ 10 frac}', 'file': '19_047.png'}
+{'label': '- \\frac frac{ 2 frac} frac{ 7 frac}', 'file': '1_061.png'}
+{'label': '- \\frac frac{ 2 frac} frac{ 7 frac}', 'file': '1_064.png'}
+{'label': '\\frac frac{ 10 frac} frac{ 61 frac}', 'file': '20_003.png'}
+{'label': '\\frac frac{ 10 frac} frac{ 61 frac}', 'file': '20_021.png'}
+{'label': '\\frac frac{ 10 frac} frac{ 61 frac}', 'file': '20_093.png'}
+{'label': '\\frac frac{ 55 frac} frac{ 7 frac}', 'file': '21_039.png'}
+{'label': '\\frac frac{ 55 frac} frac{ 7 frac}', 'file': '21_074.png'}
+{'label': '\\frac frac{ 15 frac} frac{ 2 frac}', 'file': '22_045.png'}
+{'label': '\\frac frac{ 15 frac} frac{ 2 frac}', 'file': '22_047.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 19 frac}', 'file': '23_008.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 19 frac}', 'file': '23_018.png'}
+{'label': '\\frac frac{ 6 frac} frac{ 19 frac}', 'file': '23_099.png'}
+{'label': '\\frac frac{ 4 frac} frac{ 9 frac}', 'file': '2_030.png'}
+{'label': '\\frac frac{ 4 frac} frac{ 9 frac}', 'file': '2_050.png'}
+{'label': '\\frac frac{ 8 frac} frac{ 13 frac}', 'file': '3_001.png'}
+{'label': '\\frac frac{ 8 frac} frac{ 13 frac}', 'file': '3_019.png'}
+{'label': '- \\frac frac{ 23 frac} frac{ 87 frac}', 'file': '4_010.png'}
+{'label': '- \\frac frac{ 23 frac} frac{ 87 frac}', 'file': '4_022.png'}
+{'label': '- \\frac frac{ 23 frac} frac{ 87 frac}', 'file': '4_052.png'}
+{'label': '- \\frac frac{ 23 frac} frac{ 87 frac}', 'file': '4_087.png'}
+{'label': '\\frac frac{ 4 frac} frac{ 3 frac}', 'file': '5_003.png'}
+{'label': '\\frac frac{ 4 frac} frac{ 3 frac}', 'file': '5_058.png'}
+{'label': '\\frac frac{ 4 frac} frac{ 3 frac}', 'file': '5_093.png'}
+{'label': '- \\frac frac{ 12 frac} frac{ 11 frac}', 'file': '6_034.png'}
+{'label': '- \\frac frac{ 12 frac} frac{ 11 frac}', 'file': '6_074.png'}
+{'label': '\\frac frac{ 17 frac} frac{ 23 frac}', 'file': '7_045.png'}
+{'label': '\\frac frac{ 17 frac} frac{ 23 frac}', 'file': '7_065.png'}
+{'label': '\\frac frac{ 17 frac} frac{ 23 frac}', 'file': '7_080.png'}
+{'label': '- \\frac frac{ 32 frac} frac{ 70 frac}', 'file': '8_011.png'}
+{'label': '- \\frac frac{ 32 frac} frac{ 70 frac}', 'file': '8_056.png'}
+{'label': '- \\frac frac{ 32 frac} frac{ 70 frac}', 'file': '8_086.png'}
+{'label': '\\frac frac{ 10 frac} frac{ 7 frac}', 'file': '9_030.png'}
+{'label': '\\frac frac{ 10 frac} frac{ 7 frac}', 'file': '9_062.png'}
