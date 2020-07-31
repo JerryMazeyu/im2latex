@@ -1,0 +1,27 @@
+{
+  "misc": {
+    "tst_count": 10000,  // 测试图像数量，不需要改动
+    "score_csv": "/Users/mazeyu/PycharmProjects/autoscore/2018cksx.csv",  // 答案评分的csv路径
+    "img_root": "/Users/mazeyu/PycharmProjects/autoscore/processed/T_10",  // 待处理图像的文件夹路径
+    "res_file": "/Users/mazeyu/PycharmProjects/autoscore/2018T10bak",  // 处理好图像的路径
+    "col_name": "T10_1",  // 答案评分在csv中的列名
+    "train_num": 700  // 训练样本量，不需要改动
+  },
+  "fine_tune": {
+    "ans": "( sqrt { 3 } / 3 , + inf )",  // 答案
+    "ori_file": "ID2FORMULA.json"  // 不需要改动
+  },
+  "jerry_preprocess": {
+    "ROOT": "Jerry/Jerry2018T10BAK",  // 训练数据相对路径
+    "NAME2ID": "{'dataset_手写填空-分式-1':0,'dataset_手写填空-数字序列-1':1,'dataset_手写填空-根式-1':2,'dataset_手写填空-集合-1':3}",  // 不需要改动
+    "ORIGIN_PATH": "/Users/mazeyu/Downloads/dataset/output"  // 不用改动，搜集到的样本数据路径
+  },
+  "train": {
+    "epoch": 15 // 训练的epoch
+  },
+  "inference": {
+    "info_path": "/Users/mazeyu/PycharmProjects/autoscore/im2latex/param.json",  //推断时候的-i文件路径
+    "expname": "exp3_2018T10"  // 实验名称
+  }
+
+}

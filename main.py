@@ -16,14 +16,18 @@ infer_param = param['inference']
 misc_cmd = 'python misc.py '
 for (k, v) in misc_param.items():
     misc_cmd += '--%s %s ' % (k, v)
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>miscCmd is: ", misc_cmd)
+print("+"*88)
+print("miscCmd is: ", misc_cmd)
+print("+"*88)
 os.system(misc_cmd)
 
 
 # 修改ID2FORMULA.json，加入微调数据
 try:
     shutil.rmtree(jerry_preprocess_param['ROOT'])
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>', jerry_preprocess_param['ROOT'], " has been deleted!")
+    print("+" * 88)
+    print(jerry_preprocess_param['ROOT'], " has been deleted!")
+    print("+" * 88)
 except:
     pass
 
@@ -36,7 +40,9 @@ id2formula_list.append({"(4,0)": fine_tune_param['ans']})
 id2formula_list.append({"(5,0)": "{ }"})
 with open(os.path.join(jerry_preprocess_param['ROOT'], 'ID2FORMULA.json'), 'w') as file:
     json.dump(id2formula_list, file)
-print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Now Json Has Been Saved.')
+print("+"*88)
+print('Now Json Has Been Saved.')
+print("+"*88)
 
 
 
@@ -46,20 +52,32 @@ for (k, v) in jerry_preprocess_param.items():
     jerry_preprocess_cmd += '--%s %s ' % (k, "\"" + v + "\"")
 sup_ID2NAME = "\"" +str({os.path.join(misc_param['res_file'], 'true'): 4, os.path.join(misc_param['res_file'], 'false'): 5}) + "\""
 jerry_preprocess_cmd += '--SUP_NAME2ID %s' % sup_ID2NAME
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>jpCmd is: ", jerry_preprocess_cmd)
+print("+"*88)
+print("jpCmd is: ", jerry_preprocess_cmd)
+print("+"*88)
 os.system(jerry_preprocess_cmd)
 
 # 训练（如果有GPU）
 if torch.cuda.is_available():
     train_cmd = "python train.py --data_path='./Jerry/Jerry2018T10' --save_dir='./ckpt' --dropout=0.4 --batch_size=16 --epoches=%s" % train_param['epoch']
 else:
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Cannot train right now.")
+    print("+" * 88)
+    print("Cannot train right now.")
+    print("+" * 88)
 
 
 # 推断
-infer_cmd = 'python inference.py -i %s' % infer_param['info_path']
-print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>InferenceCmd is: ", infer_cmd)
-os.system(infer_cmd)
+
+from inference import main
+infer_cmd = 'python inference.py -i %s --expname %s --csvPath %s' % (infer_param['info_path'], infer_param['expname'], misc_param['score_csv'])
+print("+"*88)
+print("InferenceCmd is: ", infer_cmd)
+print("+"*88)
+res = os.system(infer_cmd)
+print(res)
+
+
+
 
 
 

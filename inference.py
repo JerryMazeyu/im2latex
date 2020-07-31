@@ -37,6 +37,8 @@ def main():
     parser.add_argument("--max_len", type=int,
                         default=64, help="Max step of decoding")
     parser.add_argument('-i', '--info', default="", help="JsonByShiJiang")
+    parser.add_argument('--expname', default="", help="experiment name")
+    parser.add_argument('--csvPath', default="/Users/mazeyu/PycharmProjects/autoscore/2018cksx.csv", help="experiment name")
 
     args = parser.parse_args()
 
@@ -96,9 +98,9 @@ def main():
 
 
 # ===================================这里是为sqrt3定制的代码=================================================
-
-    file_true = open(os.path.join('./results', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + 'true.txt'), 'w')
-    file_false = open(os.path.join('./results', datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S') + 'false.txt'), 'w')
+    time_info = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    file_true = open(os.path.join('./results', time_info + 'true.txt'), 'w')
+    file_false = open(os.path.join('./results', time_info + 'false.txt'), 'w')
     for img, name in tqdm(tensors_, ncols=60):
         res = latex_producer(img)
         # if res[0] == 'sqrt { 3 }':
@@ -110,6 +112,10 @@ def main():
             file_false.writelines('\n')
     file_false.close()
     file_true.close()
+
+
+    from jerry_evaluation import jerryEvaluation
+    jerryEvaluation(trueFile=os.path.join('./results', time_info + 'true.txt'), falseFile=os.path.join('./results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath)
 
 
 
