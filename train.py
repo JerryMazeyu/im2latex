@@ -63,7 +63,7 @@ def main():
     parser.add_argument("--seed", type=int, default=2020,
                         help="The random seed for reproducing ")
     parser.add_argument("--from_check_point", action='store_true',
-                        default=True, help="Training from checkpoint or not")  # 是否finetune
+                        default=False, help="Training from checkpoint or not")  # 是否finetune
 
     args = parser.parse_args()
     max_epoch = args.epoches
@@ -131,6 +131,7 @@ def main():
         lr_scheduler.load_state_dict(checkpoint['lr_sche'])
         # init trainer from checkpoint
         max_epoch = epoch + args.epoches  # 修改一个bug
+        print('From %s To %s...' % (epoch, max_epoch))
         trainer = Trainer(optimizer, model, lr_scheduler,
                           train_loader, val_loader, args,
                           use_cuda=use_cuda,

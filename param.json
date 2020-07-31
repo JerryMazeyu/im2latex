@@ -1,0 +1,6 @@
+{
+  "model_path": "ckpt/best_ckpt.pt",
+  "vocab_path": "./Jerry/Jerry2018T10BAK",
+  "data_path": "/Users/mazeyu/PycharmProjects/autoscore/2018T10/tst",
+  "result_path": "./results/result.txt"
+}
