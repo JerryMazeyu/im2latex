@@ -3,7 +3,12 @@ import os.path as path
 import os
 import shutil
 
-def jerryEvaluation(trueFile, falseFile, csvPath='/Users/mazeyu/PycharmProjects/autoscore/2018cksx.csv', save=True, expName='exp1'):
+
+
+
+
+
+def jerryEvaluation(trueFile, falseFile, csvPath='/Users/mazeyu/PycharmProjects/autoscore/2018cksx.csv', save=True, expName='exp1', colName='T11_1'):
     """
     给出一些指标
     :param csvPath:
@@ -16,8 +21,9 @@ def jerryEvaluation(trueFile, falseFile, csvPath='/Users/mazeyu/PycharmProjects/
 
     def getscore(pngname):
         id = pngname.strip('0')
+
         id = id.split('_')[0]
-        return df['T10_1'].loc[int(id)]
+        return df['T11_1'].loc[int(id)]
 
     fileTrue = open(trueFile, 'r')
     fileFalse = open(falseFile, 'r')
@@ -78,4 +84,4 @@ def jerryEvaluation(trueFile, falseFile, csvPath='/Users/mazeyu/PycharmProjects/
 
 
 if __name__ == '__main__':
-    jerryEvaluation(trueFile= 'results/2020-07-31 11:30:52true.txt',falseFile='results/2020-07-31 11:30:52false.txt', expName='exp2_2018T10')
+    jerryEvaluation(trueFile= 'results/2020-07-31 17:08:55true.txt',falseFile='results/2020-07-31 17:08:55false.txt', expName='exp1_2018T11')

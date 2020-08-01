@@ -71,7 +71,7 @@ if not post_part:
 # 推断
 
 
-infer_cmd = 'python inference.py -i %s --expname %s --csvPath %s' % (infer_param['info_path'], infer_param['expname'], misc_param['score_csv'])
+infer_cmd = 'python inference.py -i %s --expname %s --csvPath %s --ans %s --colName %s' % (infer_param['info_path'], infer_param['expname'], misc_param['score_csv'], "\"" + fine_tune_param['ans'] + "\"", misc_param['col_name'])
 print("+"*88)
 print("InferenceCmd is: ", infer_cmd)
 print("+"*88)

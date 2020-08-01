@@ -24,11 +24,11 @@ def main():
     parser.add_argument('--model_path', default='ckpt/best_ckpt.pt',
                         help='path of the evaluated model')
     # parser.add_argument('--vocab_path', default='./Jerry/JerryRealData', help="where is your vocab.pkl")
-    parser.add_argument('--vocab_path', default='./Jerry/Jerry2018T10BAK', help="where is your vocab.pkl")
+    parser.add_argument('--vocab_path', default='./Jerry/Jerry2018T10', help="where is your vocab.pkl")
 
     # model args
     parser.add_argument("--data_path", type=str,
-                        default="/Users/mazeyu/PycharmProjects/autoscore/2018T10bak/tst", help="The dataset's dir")
+                        default="/Users/mazeyu/PycharmProjects/autoscore/2018T10bak/true", help="The dataset's dir")
     parser.add_argument("--cuda", action='store_true',
                         default=False, help="Use cuda or not")
     parser.add_argument("--beam_size", type=int, default=5)
@@ -39,6 +39,8 @@ def main():
     parser.add_argument('-i', '--info', default="", help="JsonByShiJiang")
     parser.add_argument('--expname', default="", help="experiment name")
     parser.add_argument('--csvPath', default="/Users/mazeyu/PycharmProjects/autoscore/2018cksx.csv", help="experiment name")
+    parser.add_argument('--ans', default='( sqrt { 3 } / 3 , + inf )')
+    parser.add_argument('--colName', default='T11_1')
 
     args = parser.parse_args()
 
@@ -103,8 +105,7 @@ def main():
     file_false = open(os.path.join('./results', time_info + 'false.txt'), 'w')
     for img, name in tqdm(tensors_, ncols=60):
         res = latex_producer(img)
-        # if res[0] == 'sqrt { 3 }':
-        if res[0] == '( sqrt { 3 } / 3 , + inf )':
+        if res[0] == args.ans:
             file_true.writelines(name)
             file_true.writelines('\n')
         else:
@@ -115,7 +116,7 @@ def main():
 
 
     from jerry_evaluation import jerryEvaluation
-    jerryEvaluation(trueFile=os.path.join('./results', time_info + 'true.txt'), falseFile=os.path.join('./results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath)
+    jerryEvaluation(trueFile=os.path.join('./results', time_info + 'true.txt'), falseFile=os.path.join('./results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath, colName=args.colName)
 
 
 
