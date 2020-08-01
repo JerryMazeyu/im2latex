@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch.distributions.bernoulli import Bernoulli
 
 from build_vocab import PAD_TOKEN, UNK_TOKEN
+import cv2
 
 
 def collate_fn(sign2id, batch):
@@ -150,3 +151,10 @@ def cal_epsilon(k, step, method):
         return k/(k+math.exp(step/k))
     else:
         return 1.
+
+
+def calConnectedComponent(img):
+    img = cv2.imread(img, cv2.IMREAD_GRAYSCALE)
+    num, _ = cv2.connectedComponents(img)
+    return num - 1
+
