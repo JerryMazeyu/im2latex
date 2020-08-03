@@ -2,24 +2,25 @@
   "misc": {
     "tst_count": 10000,
     "score_csv": "/Users/mazeyu/PycharmProjects/autoscore/2018cksx.csv",
-    "img_root": "/Users/mazeyu/PycharmProjects/autoscore/processed/T_10",
-    "res_file": "/Users/mazeyu/PycharmProjects/autoscore/2018T10bak",
-    "col_name": "T10_1",
-    "train_num": 700
+    "img_root": "/Users/mazeyu/PycharmProjects/autoscore/processed/T_12",
+    "res_file": "/Users/mazeyu/PycharmProjects/autoscore/2018T12",
+    "col_name": "T12_1",
+    "train_num": 1000
   },
   "fine_tune": {
-    "ans": "( sqrt { 3 } / 3 , + inf )",
+    "ans": "4 . 4",
     "ori_file": "ID2FORMULA.json"
   },
   "jerry_preprocess": {
-    "ROOT": "Jerry/Jerry2018T10BAK",
-    "NAME2ID": "{'dataset_手写填空-分式-1':0,'dataset_手写填空-数字序列-1':1,'dataset_手写填空-根式-1':2,'dataset_手写填空-集合-1':3}"
+    "ROOT": "Jerry/Jerry2018T12",
+    "NAME2ID": "{'dataset_手写填空-分式-1':0,'dataset_手写填空-数字序列-1':1,'dataset_手写填空-根式-1':2,'dataset_手写填空-集合-1':3}",
+    "ORIGIN_PATH": "/Users/mazeyu/Downloads/dataset/output"
   },
-  "train": {
-    "epoch": 15
+    "train": {
+      "epoch": 15
   },
-  "inference": {
-    "info_path": "/Users/mazeyu/PycharmProjects/autoscore/im2latex/param.json"
+    "inference": {
+      "info_path": "/Users/mazeyu/PycharmProjects/autoscore/im2latex/param.json",
+      "expname": "exp1_2018T12"
   }
-
 }
