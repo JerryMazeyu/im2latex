@@ -3,7 +3,7 @@ import json
 import shutil
 import torch
 
-post_part = True
+post_part = False
 
 with open('param1.json', 'r') as file:
     param = json.load(file)
@@ -61,7 +61,10 @@ if not post_part:
 
     # 训练（如果有GPU）
     if torch.cuda.is_available():
-        train_cmd = "python train.py --data_path='./Jerry/Jerry2018T10' --save_dir='./ckpt' --dropout=0.4 --batch_size=16 --epoches=%s" % train_param['epoch']
+        train_cmd = "python train.py --data_path='%s' --save_dir='./ckpt' --dropout=0.4 --batch_size=16 --epoches=%s" % (jerry_preprocess_param['ROOT'], train_param['epoch'])
+        print("+"*88)
+        print("trainCmd is: ", train_cmd)
+        os.system(train_cmd)
     else:
         print("+" * 88)
         print("Cannot train right now.")
@@ -75,17 +78,6 @@ infer_cmd = 'python inference.py -i %s --expname %s --csvPath %s --ans %s --colN
 print("+"*88)
 print("InferenceCmd is: ", infer_cmd)
 print("+"*88)
-res = os.system(infer_cmd)
-print(res)
-
-
-
-
-
-
-
-
-
-
+os.system(infer_cmd)
 
 
