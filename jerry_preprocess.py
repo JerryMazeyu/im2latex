@@ -14,10 +14,12 @@ from random import shuffle
 import argparse
 
 parser = argparse.ArgumentParser(description="Im2Latex Training Program")
-parser.add_argument("--ROOT", default="Jerry/Jerry2018T10", help="存放的路径")
-parser.add_argument("--NAME2ID", default="", help="图像对应编号")
+parser.add_argument("--ROOT", default="Jerry/Jerry2018T11", help="存放的路径")
+# parser.add_argument("--NAME2ID", default="", help="图像对应编号")
+parser.add_argument("--NAME2ID", default="{'dataset_手写填空-分式-1': 0, 'dataset_手写填空-数字序列-1':1, 'dataset_手写填空-根式-1':2, 'dataset_手写填空-集合-1':3}", help="图像对应编号")
 parser.add_argument("--ORIGIN_PATH", default='/Users/mazeyu/Downloads/dataset/output', help="平时不要动")
-parser.add_argument("--SUP_NAME2ID", default="", help="微调的数据")
+# parser.add_argument("--SUP_NAME2ID", default="", help="微调的数据")
+parser.add_argument('--SUP_NAME2ID', default="{'/Users/mazeyu/PycharmProjects/autoscore/2018T10/true': 4, '/Users/mazeyu/PycharmProjects/autoscore/2018T10/false': 5, '/Users/mazeyu/PycharmProjects/autoscore/im2latex/results/exp1_2018T10/True2False': 6, '/Users/mazeyu/PycharmProjects/autoscore/im2latex/results/exp1_2018T10/False2True': 7}")
 args = parser.parse_args()
 
 
@@ -206,7 +208,7 @@ class JerryPreprocessBuild():
         file = open(os.path.join(self.root, 'im2latex_all_filter.lst'), 'w')
         count = 0
         for name in self.names:
-            if name[0] == '/':  # 对fine-tune的部分进行不同的处理
+            if name.find("/" or "\\") != -1:  # 对fine-tune的部分进行不同的处理
                 originP = name
                 tarImgList = [os.path.join(name, x) for x in os.listdir(originP)]
             else:
@@ -214,7 +216,7 @@ class JerryPreprocessBuild():
                 tarImgList = [os.path.join(self.originImgsPath, name[8:], x) for x in os.listdir(originP)]
             tarImgList = list(filter(lambda x: True if x.endswith('png') else False, tarImgList))
             for img in tqdm(tarImgList, ncols=60):
-                if name[0] == '/':
+                if name.find("/" or "\\") != -1:
                     tarID = '(%s,%s)' % (self.name2id[name], 0)
                 else:
                     imgID = os.path.split(img)[-1].split('_')[0]
