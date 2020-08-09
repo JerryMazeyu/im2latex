@@ -100,7 +100,7 @@ def main():
 
 
 # ===================================这里是为sqrt3定制的代码=================================================
-    time_info = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    time_info = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
     file_true = open(os.path.join('./results', time_info + 'true.txt'), 'w')
     file_false = open(os.path.join('./results', time_info + 'false.txt'), 'w')
     for img, name in tqdm(tensors_, ncols=60):
@@ -116,7 +116,7 @@ def main():
 
 
     from jerry_evaluation import jerryEvaluation
-    jerryEvaluation(trueFile=os.path.join('./results', time_info + 'true.txt'), falseFile=os.path.join('./results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath, colName=args.colName)
+    jerryEvaluation(trueFile=os.path.join('results', time_info + 'true.txt'), falseFile=os.path.join('results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath, colName=args.colName)
 
 
 

@@ -23,7 +23,7 @@ def jerryEvaluation(trueFile, falseFile, csvPath='/Users/mazeyu/PycharmProjects/
         id = pngname.strip('0')
 
         id = id.split('_')[0]
-        return df['T11_1'].loc[int(id)]
+        return df[colName].loc[int(id)]
 
     fileTrue = open(trueFile, 'r')
     fileFalse = open(falseFile, 'r')
