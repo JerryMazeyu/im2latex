@@ -10,8 +10,8 @@ from utils import cal_loss, cal_epsilon
 class Trainer(object):
     def __init__(self, optimizer, model, lr_scheduler,
                  train_loader, val_loader, args,
-                 use_cuda=True, init_epoch=1, last_epoch=15):
-
+                 use_cuda=True, init_epoch=1, last_epoch=15, exp=""):
+        self.exp = exp
         self.optimizer = optimizer
         self.model = model
         self.lr_scheduler = lr_scheduler
@@ -96,7 +96,10 @@ class Trainer(object):
             ))
         if avg_loss < self.best_val_loss:
             self.best_val_loss = avg_loss
-            self.save_model('best_ckpt')
+            if self.exp != "":
+                self.save_model(self.exp)
+            else:
+                self.save_model('best_ckpt')
         return avg_loss
 
     def save_model(self, model_name):

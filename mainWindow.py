@@ -3,193 +3,186 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import os
+import json
+import shutil
+import torch
+from copy import deepcopy
 
-
-class Stream(QObject):
-    """Redirects console output to text widget."""
-    newText = pyqtSignal(str)
-
-    def write(self, text):
-        self.newText.emit(str(text))
-
-
-class App(QWidget):
-
+class FineTune(QWidget):
     def __init__(self):
-        super().__init__()
-        self.title = 'im2latex Finetune'
-        self.left = 200
-        self.top = 200
+        self.title = "im2latex微调工具"
+        super(FineTune, self).__init__()
         self.width = 1000
         self.height = 800
         self.initUI()
-        sys.stdout = Stream(newText=self.onUpdateText)
-
+        self.file = None
+        self.allFile = []
 
     def initUI(self):
-
         self.setWindowTitle(self.title)
-        # self.setGeometry(self.left, self.top, self.width, self.height)
-        # ===========================元素=============================
-        # label1
-        self.label1 = QLabel("param1.json Path")
-        self.label1.setStyleSheet('border-width: 1px;border-style: solid;border-color: rgb(220, 220, 220);background-color: rgb(220, 220, 220);')
-        # label2
-        self.label2 = QLabel("param2.json Path")
-        self.label2.setStyleSheet('border-width: 1px;border-style: solid;border-color: rgb(220, 220, 220);background-color: rgb(220, 220, 220);')
 
-        # button1
-        self.button1 = QPushButton('Open File')
-        self.button1.clicked.connect(self.chooseFile1)
+        self.label1 = QLabel("微调文件")
+        self.label2 = QLabel("答案")
+        self.label3 = QLabel("实验名称")
 
-        # button2
-        self.button2 = QPushButton('Open File')
-        self.button2.clicked.connect(self.chooseFile2)
+        self.button1 = QPushButton("选择文件")
+        self.button1.clicked.connect(lambda: self.chooseDirectory(self.button1))
+        self.button2 = QPushButton("添加")
+        self.button2.clicked.connect(self.addItem)
+        self.button3 = QPushButton("微调")
+        self.button3.clicked.connect(self.fineTune)
 
-        # button
-        self.button = QPushButton('Start')
-        self.button.setToolTip('Start Fine-tune And Inference')
-        self.button.clicked.connect(self.on_click)
+        self.input1 = QLineEdit()
+        self.input1.setFixedWidth(100)
+        self.input1.setPlaceholderText("输入")
+        self.input2 = QLineEdit()
+        self.input2.setFixedWidth(100)
+        self.input2.setPlaceholderText("输入")
 
-        # progressBar
-        self.progressBar = QProgressBar(self)
+        self.spinbox = QSpinBox()
+        self.spinbox.setRange(5, 1000)
 
-        # frame
-        self.process = QTextEdit(self, readOnly=True)
-        self.process.setFixedHeight(200)
-
-        # statusBar
-        self.statusBar = QStatusBar()
-
-        # ===========================布局===========================
-        vlayout = QVBoxLayout()  # 进度条和上面的部分分开
-
-        spliter1 = QSplitter(Qt.Horizontal)
-        spliter1.addWidget(self.label1)
-        spliter1.addWidget(self.button1)
-
-
-        spliter2 = QSplitter(Qt.Horizontal)
-        spliter2.addWidget(self.label2)
-        spliter2.addWidget(self.button2)
-
-
-        spliter3 = QSplitter(Qt.Vertical)
-        spliter3.addWidget(spliter1)
-        spliter3.addWidget(spliter2)
-        spliter3.setFixedSize(400, 200)
-
-
-
-        vlayout.addWidget(spliter1)
-        vlayout.addWidget(spliter2)
-        vlayout.addWidget(self.process)
-        vlayout.addWidget(self.progressBar)
-        vlayout.addWidget(self.button)
-        vlayout.addWidget(self.statusBar)
-        self.setLayout(vlayout)
-
-        self.show()
-
-    def onUpdateText(self, text):
-        """Write console output to text widget."""
-        cursor = self.process.textCursor()
-        cursor.movePosition(QTextCursor.End)
-        cursor.insertText(text)
-        self.process.setTextCursor(cursor)
-        self.process.ensureCursorVisible()
-
-    def chooseFile1(self):
-        fileName, _ = QFileDialog.getOpenFileName(self, "选取文件", os.getcwd(), "All Files(*);;Text Files(*.txt)")
-        self.file1 = fileName
-        self.statusBar.showMessage(fileName)
-        self.button1.setText(os.getcwd())
-
-    def chooseFile2(self):
-        fileName, _ = QFileDialog.getOpenFileName(self, "选取文件", os.getcwd(), "All Files(*);;Text Files(*.txt)")
-        self.file2 = fileName
-        self.button2.setText(os.getcwd())
+        self.trainlayout = QGridLayout()
+        self.trainlayout.addWidget(self.button3, 0, 0, 1, 6)
+        self.trainlayout.addWidget(self.spinbox, 0, 6, 1, 1)
+        self.trainlayout.addWidget(QLabel("轮"), 0, 7, 1, 1)
 
 
 
 
-    def on_click(self):
-        import os
-        import json
-        import shutil
-        import torch
+        self.frame = QTableWidget(100,4)
+        self.frame.setHorizontalHeaderLabels(['文件', '答案', '实验名称', '操作'])
+        self.frame.setShowGrid(False)
+        self.frame.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.frame.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.frame.setSelectionBehavior(QAbstractItemView.SelectRows)
 
-        post_part = False
 
-        with open(self.file1, 'r') as file:
-            param = json.load(file)
+        self.status = QStatusBar()
+        self.grid = QGridLayout()
+        self.grid.setSpacing(10)
 
-        misc_param = param['misc']
-        fine_tune_param = param['fine_tune']
-        jerry_preprocess_param = param['jerry_preprocess']
-        train_param = param['train']
-        infer_param = param['inference']
-        # misc.py 将原始数据做处理成训练集/测试集
-        if not post_part:
-            misc_cmd = 'python /Users/mazeyu/PycharmProjects/autoscore/im2latex/misc.py '
-            for (k, v) in misc_param.items():
-                misc_cmd += '--%s %s ' % (k, v)
-            print("+" * 88)
-            print("miscCmd is: ", misc_cmd)
-            print("+" * 88)
-            os.system(misc_cmd)
+        self.grid.addWidget(self.label1, 0, 0)
+        self.grid.addWidget(self.button1, 1, 0)
+        self.grid.addWidget(self.label2, 0, 1)
+        self.grid.addWidget(self.input1, 1, 1)
+        self.grid.addWidget(self.label3, 0, 2)
+        self.grid.addWidget(self.input2, 1, 2)
+        self.grid.addWidget(self.button2, 2, 0, 1, 3)
+        self.grid.addWidget(self.frame, 3, 0, 12, 3)
+        # self.grid.addWidget(self.button3, 15, 0, 1, 2)
+        self.grid.addLayout(self.trainlayout, 15, 0, 1, 3)
+        self.grid.addWidget(self.status, 16, 0, 1, 3)
+        self.setLayout(self.grid)
 
-            # 修改ID2FORMULA.json，加入微调数据
+    def chooseDirectory(self, widget):
+        filename = QFileDialog.getExistingDirectory(self, "选取文件夹", directory= os.getcwd())
+        self.file = filename
+        self.status.showMessage(filename)
+        if filename != "":
+            widget.setText(filename)
+
+    def isEmpty(self, widget):
+        return widget.text() == ""
+
+    def getItemNum(self):
+        return len(self.allFile)
+
+    def addItem(self):
+        if not self.isEmpty(widget=self.input1) and not self.isEmpty(widget=self.input2):
+            num = len(self.allFile)
+            pathItem = QTableWidgetItem(self.file)
+            ansItem = QTableWidgetItem(self.input1.text())
+            expItem = QTableWidgetItem(self.input2.text())
+
+            self.frame.setItem(num, 0, pathItem)
+            self.frame.setItem(num, 1, ansItem)
+            self.frame.setItem(num, 2, expItem)
+            tarId = deepcopy(num)
+            if tarId != -1:
+                button = QPushButton("删除")
+                button.clicked.connect(lambda: self.delItem(tarId))
+                self.frame.setCellWidget(num, 3, button)
+                self.allFile.append({"id": tarId, "path": self.file, "ans": self.input1.text(), "exp": self.input2.text()})
+                self.button1.setText("选择文件")
+                self.input1.setText("")
+                self.input2.setText("")
+
+    def delItem(self, row=1):
+        ans = self.__findDict(row)
+        if ans:
+            tarRow = self.__findIndex(ans)
+            self.allFile.remove(ans)
+            self.frame.removeRow(tarRow)
+
+
+
+    def __findDict(self, value):
+        for i in self.allFile:
+            if i['id'] == value:
+                return i
+        return False
+
+    def __findIndex(self, value):
+        return self.allFile.index(value)
+
+    def fineTune(self):
+        import sys
+        a = (os.path.abspath(sys.argv[0])[0: os.path.abspath(sys.argv[0]).find('im2latex')])
+        b = 'im2latex'
+        root = os.path.join(a, b)
+        for info in self.allFile:
+            tarFile, tarAns, expName = info["path"], info["ans"], info["exp"]
+            trueFile = os.path.join(tarFile, 'right')
+            falseFile = os.path.join(tarFile, 'wrong')
+            dict = {trueFile: 4, falseFile: 5}
+            finetuneResPath = os.path.join(root, 'finetune', expName)
+            assetPath = os.path.join(root, 'asset', 'output')
+            oriID2FORMULA = os.path.join(root, 'ID2FORMULA.json')
+            pythonPath = os.path.join(root, 'jerry_preprocess.py')
             try:
-                shutil.rmtree(jerry_preprocess_param['ROOT'])
+                shutil.rmtree(finetuneResPath)
                 print("+" * 88)
-                print(jerry_preprocess_param['ROOT'], " has been deleted!")
+                print(finetuneResPath, " has been deleted!")
+                self.status.showMessage(finetuneResPath + " has been deleted!")
                 print("+" * 88)
             except:
                 pass
 
-            if not os.path.exists(jerry_preprocess_param['ROOT']):
-                os.mkdir(jerry_preprocess_param['ROOT'])
+            if not os.path.exists(finetuneResPath):
+                os.mkdir(finetuneResPath)
 
-            with open(fine_tune_param['ori_file'], 'r') as file:
+            with open(oriID2FORMULA, 'r') as file:
                 id2formula_list = json.load(file)
-            id2formula_list.append({"(4,0)": fine_tune_param['ans']})
+            id2formula_list.append({"(4,0)": tarAns})
             id2formula_list.append({"(5,0)": "{ }"})
-            with open(os.path.join(jerry_preprocess_param['ROOT'], 'ID2FORMULA.json'), 'w') as file:
+            with open(os.path.join(finetuneResPath, 'ID2FORMULA.json'), 'w') as file:
                 json.dump(id2formula_list, file)
             print("+" * 88)
             print('Now Json Has Been Saved.')
+            self.status.showMessage('Now Json Has Been Saved.')
             print("+" * 88)
-
-            # 生成待训练数据
-            jerry_preprocess_cmd = "python /Users/mazeyu/PycharmProjects/autoscore/im2latex/jerry_preprocess.py "
-            for (k, v) in jerry_preprocess_param.items():
-                jerry_preprocess_cmd += '--%s %s ' % (k, "\"" + v + "\"")
-            sup_ID2NAME = "\"" + str({os.path.join(misc_param['res_file'], 'true'): 4,
-                                      os.path.join(misc_param['res_file'], 'false'): 5}) + "\""
-            jerry_preprocess_cmd += '--SUP_NAME2ID %s' % sup_ID2NAME
+            cmd = "python %s --ROOT \"%s\" --ORIGIN_PATH \"%s\" --SUP_NAME2ID \"%s\"" % (pythonPath, finetuneResPath, assetPath, dict)
+            self.status.showMessage("Waiting...")
+            os.system(cmd)
+            self.status.showMessage(expName + " preprocess OK!")
+            saveDir = os.path.join(root, 'ckpt')
+            epoches = self.spinbox.value()
+            train_cmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --dropout=0.4 --batch_size=16 --epoches=%s --exp=\"%s\"" % (
+            finetuneResPath, saveDir, epoches, expName)
             print("+" * 88)
-            print("jpCmd is: ", jerry_preprocess_cmd)
-            print("+" * 88)
-            os.system(jerry_preprocess_cmd)
-
-            # 训练（如果有GPU）
+            print("train CMD: ", train_cmd)
             if torch.cuda.is_available():
-                train_cmd = "python train.py --data_path='%s' --save_dir='./ckpt' --dropout=0.4 --batch_size=16 --epoches=%s" % (
-                jerry_preprocess_param['ROOT'], train_param['epoch'])
-                print("+" * 88)
-                print("trainCmd is: ", train_cmd)
+                self.status.showMessage("Trianing " + expName)
                 os.system(train_cmd)
             else:
-                print("+" * 88)
-                print("Cannot train right now.")
-                print("+" * 88)
-                print("vocab.pkl should fit to checkpoint.")
+                self.status.showMessage("NO CUDA!")
 
 
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = App()
+    form = FineTune()
+    form.show()
     sys.exit(app.exec_())

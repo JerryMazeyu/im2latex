@@ -52,7 +52,7 @@ if not post_part:
     jerry_preprocess_cmd = "python jerry_preprocess.py "
     for (k, v) in jerry_preprocess_param.items():
         jerry_preprocess_cmd += '--%s %s ' % (k, "\"" + v + "\"")
-    sup_ID2NAME = "\"" +str({os.path.join(misc_param['res_file'], 'true'): 4, os.path.join(misc_param['res_file'], 'false'): 5}) + "\""
+    sup_ID2NAME = "\"" + str({os.path.join(misc_param['res_file'], 'true'): 4, os.path.join(misc_param['res_file'], 'false'): 5}) + "\""
     jerry_preprocess_cmd += '--SUP_NAME2ID %s' % sup_ID2NAME
     print("+"*88)
     print("jpCmd is: ", jerry_preprocess_cmd)

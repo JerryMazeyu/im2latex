@@ -13,7 +13,6 @@ from build_vocab import Vocab, load_vocab
 
 
 def main():
-
     # get args
     parser = argparse.ArgumentParser(description="Im2Latex Training Program")
     # parser.add_argument('--path', required=True, help='root of the model')
@@ -45,9 +44,9 @@ def main():
                         help="The method to schedule sampling")
     parser.add_argument("--decay_k", type=float, default=1.,
                         help="Base of Exponential decay for Schedule Sampling. "
-                        "When sample method is Exponential deca;"
-                        "Or a constant in Inverse sigmoid decay Equation. "
-                        "See details in https://arxiv.org/pdf/1506.03099.pdf"
+                             "When sample method is Exponential deca;"
+                             "Or a constant in Inverse sigmoid decay Equation. "
+                             "See details in https://arxiv.org/pdf/1506.03099.pdf"
                         )
 
     parser.add_argument("--lr_decay", type=float, default=0.5,
@@ -64,6 +63,7 @@ def main():
                         help="The random seed for reproducing ")
     parser.add_argument("--from_check_point", action='store_true',
                         default=False, help="Training from checkpoint or not")  # 是否finetune
+    parser.add_argument("--exp", default="")  # 实验名称，ckpt的名称
 
     args = parser.parse_args()
     max_epoch = args.epoches
@@ -140,7 +140,7 @@ def main():
         trainer = Trainer(optimizer, model, lr_scheduler,
                           train_loader, val_loader, args,
                           use_cuda=use_cuda,
-                          init_epoch=1, last_epoch=args.epoches)
+                          init_epoch=1, last_epoch=args.epoches, exp=args.exp)
     # begin training
     trainer.train()
 
