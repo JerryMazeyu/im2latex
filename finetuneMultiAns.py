@@ -19,9 +19,9 @@ from collections import defaultdict
 parser = argparse.ArgumentParser(description="Im2Latex Training Program")
 parser.add_argument("-d", "--dataPath", required=True, help="原始数据路径：<dataPath>/<right>、<wrong> ")
 # parser.add_argument("-d", "--dataPath", default='/Users/mazeyu/Desktop/papers/T1_1', help="原始数据路径：<dataPath>/<right>、<wrong> ")
-parser.add_argument("-e", "--expName", default="exp1", help="实验名称，最后训练数据会存在：./finetune/<expName>")
-parser.add_argument("-a", "--answer", default="{{ 3 , 4 }}", help="如果是一个答案的，则写入")
-parser.add_argument("-s", "--sub", default="{}", help="如果多一个答案的，则写入")
+parser.add_argument("-e", "--expName", default="", help="实验名称，最后训练数据会存在：./finetune/<expName>")
+parser.add_argument("-a", "--answer", default="", help="如果是一个答案的，则写入答案")
+parser.add_argument("-s", "--sub", default="{}", help="如果多个答案的，则写入字典")
 args = parser.parse_args()
 
 # 找到项目的根目录的绝对路径
@@ -163,13 +163,13 @@ class BuildTrainData():
         file.close()
         print("Writing OK!")
 # =====================================================================================
-#         os.remove(os.path.join(self.resPath, 'im2latex_all_filter.lst'))
+        os.remove(os.path.join(self.resPath, 'im2latex_all_filter.lst'))
         self.buildpkl('train', self.imgPath, os.path.join(self.resPath, 'im2latex_formulas.norm.lst'),
                       os.path.join(self.resPath, 'im2latex_train_filter.lst'))
         self.buildpkl('validate', self.imgPath, os.path.join(self.resPath, 'im2latex_formulas.norm.lst'),
                       os.path.join(self.resPath, 'im2latex_valid_filter.lst'))
-        # if os.path.exists(os.path.join(self.resPath, 'imgs')):  # 把原图像删去，可以注释
-        #     shutil.rmtree(os.path.join(self.resPath, 'imgs'))
+        if os.path.exists(os.path.join(self.resPath, 'imgs')):  # 把原图像删去，可以注释
+            shutil.rmtree(os.path.join(self.resPath, 'imgs'))
         build_vocab(data_dir=self.resPath, min_count=0)
         print("Build Training Data OK!")
 
