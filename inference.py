@@ -1,21 +1,16 @@
 # load checkpoint and inference
 from os.path import join
-from functools import partial
 import argparse
 import os
 
-
 import torch
 from tqdm import tqdm
-
 from build_vocab import load_vocab
-
 from model import LatexProducer, Im2LatexModel
-
 from data import LoadTensorFromPath
 import datetime
-
 import json
+from utils import toStandardLatex
 
 
 def main():
@@ -23,7 +18,6 @@ def main():
     parser = argparse.ArgumentParser(description="Im2Latex Evaluating Program")
     parser.add_argument('--model_path', default='ckpt/best_ckpt.pt',
                         help='path of the evaluated model')
-    # parser.add_argument('--vocab_path', default='./Jerry/JerryRealData', help="where is your vocab.pkl")
     parser.add_argument('--vocab_path', default='./Jerry/Jerry2018T10', help="where is your vocab.pkl")
 
     # model args
@@ -55,8 +49,6 @@ def main():
             pass
 
 
-
-
     # 加载模型
     if not args.cuda:
         checkpoint = torch.load(join(args.model_path), map_location=torch.device('cpu'))
@@ -85,38 +77,21 @@ def main():
     if not os.path.exists(args.result_path):
         os.mknod(args.result_path)
 
-    # with open(args.result_path, 'a') as file:
-    #     file.writelines('\n')
-    #     file.writelines(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-    #     file.writelines('\n')
-    #     file.writelines('='*80)
-    #     file.writelines('\n')
-    #     for img, name in tqdm(tensors_, ncols=60):
-    #         res = latex_producer(img)
-    #         file.writelines('\n')
-    #         file.writelines(name + '-->' + res[0])
-    #         file.writelines('\n')
 
+    results = []
 
-
-# ===================================这里是为sqrt3定制的代码=================================================
-    time_info = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-    file_true = open(os.path.join('./results', time_info + 'true.txt'), 'w')
-    file_false = open(os.path.join('./results', time_info + 'false.txt'), 'w')
     for img, name in tqdm(tensors_, ncols=60):
+        if use_cuda:
+            img = img.cuda()
         res = latex_producer(img)
-        if res[0] == args.ans:
-            file_true.writelines(name)
-            file_true.writelines('\n')
-        else:
-            file_false.writelines(name + " " + res[0])
-            file_false.writelines('\n')
-    file_false.close()
-    file_true.close()
+        res = toStandardLatex(res[0])
+        results.append({"name": os.path.basename(name), "predict": res})
 
+    with open(args.result_path, 'w') as file:
+        file.writelines(json.dumps({"result": results}))
 
-    from jerry_evaluation import jerryEvaluation
-    jerryEvaluation(trueFile=os.path.join('results', time_info + 'true.txt'), falseFile=os.path.join('results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath, colName=args.colName)
+    # from jerry_evaluation import jerryEvaluation
+    # jerryEvaluation(trueFile=os.path.join('results', time_info + 'true.txt'), falseFile=os.path.join('results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath, colName=args.colName)
 
 
 

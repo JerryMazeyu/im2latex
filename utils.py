@@ -181,3 +181,16 @@ def stripNonsense(ans:str):
     for i in nonsense:
         del ansList[i]
     return " ".join(ansList)
+
+def toStandardLatex(ans:str):
+    ans = stripNonsense(ans)
+    mapping = {'{{': '\{', '}}': '\}', 'frac':'\\frac', 'sqrt':'\sqrt', 'E':'\in', 'U':'\\bigcup', 'inf':'\infty', 'pi':'\pi'}
+    res = []
+    for i in ans.split(" "):
+        repSym = mapping.get(i, None)
+        if repSym:
+            res.append(repSym)
+        else:
+            res.append(i)
+    return "".join(res)
+
