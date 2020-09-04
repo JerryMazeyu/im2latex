@@ -89,6 +89,8 @@ time_info = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
 file_true = open(os.path.join('./results', time_info + 'true.txt'), 'w')
 file_false = open(os.path.join('./results', time_info + 'false.txt'), 'w')
 for img, name in tqdm(tensors_, ncols=60):
+    if cuda:
+        img = img.cuda()
     res = latex_producer(img)
     if stripNonsense(res[0]) in answer:
         file_true.writelines(name)
