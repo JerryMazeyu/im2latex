@@ -158,3 +158,26 @@ def calConnectedComponent(img):
     num, _ = cv2.connectedComponents(img)
     return num - 1
 
+
+def stripNonsense(ans:str):
+    stack1, stack2 = [], []
+    nonsense = []
+    ansList = ans.split(" ")
+    for ind, ele in enumerate(ansList):
+        if ele in ["(", "["]:
+            stack1.append(ele)
+        if ele == "{{":
+            stack2.append(ele)
+        if ele in [")", "]"]:
+            try:
+                stack1.pop()
+            except:
+                nonsense.append(ind)
+        if ele == "}}":
+            try:
+                stack2.pop()
+            except:
+                nonsense.append(ind)
+    for i in nonsense:
+        del ansList[i]
+    return " ".join(ansList)
