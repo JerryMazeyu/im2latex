@@ -17,6 +17,13 @@ class FineTune(QWidget):
         self.initUI()
         self.file = None
         self.allFile = []
+        self.curDictionary = os.getcwd()
+
+        import sys
+        a = (os.path.abspath(sys.argv[0])[0: os.path.abspath(sys.argv[0]).find('im2latex')])
+        b = 'im2latex'
+        self.root = os.path.join(a, b)
+        self.loadState()
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -31,13 +38,20 @@ class FineTune(QWidget):
         self.button2.clicked.connect(self.addItem)
         self.button3 = QPushButton("微调")
         self.button3.clicked.connect(self.fineTune)
+        self.button4 = QPushButton("导入配置文件")
+        # self.button4.clicked.connect()
+        self.button5 = QPushButton("保存信息")
+        self.button5.clicked.connect(self.saveState)
+
 
         self.input1 = QLineEdit()
-        self.input1.setFixedWidth(100)
+        self.input1.setFixedWidth(500)
         self.input1.setPlaceholderText("输入")
         self.input2 = QLineEdit()
         self.input2.setFixedWidth(100)
         self.input2.setPlaceholderText("输入")
+
+        self.checkbox = QCheckBox("多个？")
 
         self.spinbox = QSpinBox()
         self.spinbox.setRange(5, 1000)
@@ -46,7 +60,12 @@ class FineTune(QWidget):
         self.trainlayout.addWidget(self.button3, 0, 0, 1, 6)
         self.trainlayout.addWidget(self.spinbox, 0, 6, 1, 1)
         self.trainlayout.addWidget(QLabel("轮"), 0, 7, 1, 1)
+        self.trainlayout.addWidget(self.button4, 0, 8, 1, 1)
+        self.trainlayout.addWidget(self.button5, 0, 9, 1, 1)
 
+        self.multilayout = QGridLayout()
+        self.multilayout.addWidget(self.label2, 0, 0)
+        self.multilayout.addWidget(self.checkbox, 0, 1)
 
 
 
@@ -64,19 +83,19 @@ class FineTune(QWidget):
 
         self.grid.addWidget(self.label1, 0, 0)
         self.grid.addWidget(self.button1, 1, 0)
-        self.grid.addWidget(self.label2, 0, 1)
+        # self.grid.addWidget(self.label2, 0, 1)
+        self.grid.addLayout(self.multilayout, 0, 1)
         self.grid.addWidget(self.input1, 1, 1)
         self.grid.addWidget(self.label3, 0, 2)
         self.grid.addWidget(self.input2, 1, 2)
         self.grid.addWidget(self.button2, 2, 0, 1, 3)
         self.grid.addWidget(self.frame, 3, 0, 12, 3)
-        # self.grid.addWidget(self.button3, 15, 0, 1, 2)
         self.grid.addLayout(self.trainlayout, 15, 0, 1, 3)
         self.grid.addWidget(self.status, 16, 0, 1, 3)
         self.setLayout(self.grid)
 
     def chooseDirectory(self, widget):
-        filename = QFileDialog.getExistingDirectory(self, "选取文件夹", directory= os.getcwd())
+        filename = QFileDialog.getExistingDirectory(self, "选取文件夹", directory=self.curDictionary)
         self.file = filename
         self.status.showMessage(filename)
         if filename != "":
@@ -92,9 +111,9 @@ class FineTune(QWidget):
         if not self.isEmpty(widget=self.input1) and not self.isEmpty(widget=self.input2):
             num = len(self.allFile)
             pathItem = QTableWidgetItem(self.file)
-            ansItem = QTableWidgetItem(self.input1.text())
+            ansItem = QTableWidgetItem(self.input1.text() + "  <" + str(self.checkbox.isChecked()) + ">")
             expItem = QTableWidgetItem(self.input2.text())
-
+            self.curDictionary = self.file
             self.frame.setItem(num, 0, pathItem)
             self.frame.setItem(num, 1, ansItem)
             self.frame.setItem(num, 2, expItem)
@@ -103,10 +122,41 @@ class FineTune(QWidget):
                 button = QPushButton("删除")
                 button.clicked.connect(lambda: self.delItem(tarId))
                 self.frame.setCellWidget(num, 3, button)
-                self.allFile.append({"id": tarId, "path": self.file, "ans": self.input1.text(), "exp": self.input2.text()})
+                self.allFile.append({"id": tarId, "path": self.file, "ans": self.input1.text(), "exp": self.input2.text(), "multi":self.checkbox.isChecked()})
                 self.button1.setText("选择文件")
                 self.input1.setText("")
                 self.input2.setText("")
+                self.checkbox.setChecked(False)
+
+    def saveState(self):
+        tmpfile = os.path.join(self.root, 'asset', 'tmp.json')
+        with open(tmpfile, 'w') as file:
+            json.dump(self.allFile, file)
+        self.status.showMessage("Save State!")
+
+    def loadState(self):
+        tmpfile = os.path.join(self.root, 'asset', 'tmp.json')
+        try:
+            self.status.showMessage("Loading State!")
+            with open(tmpfile, 'r') as file:
+                state = json.load(file)
+                self.allFile = state
+                for dict in state:
+                    num = dict['id']
+                    pathItem = QTableWidgetItem(dict['path'])
+                    ansItem = QTableWidgetItem(dict['ans'] + "  <" + str(dict['multi']) + ">")
+                    expItem = QTableWidgetItem(dict['exp'])
+                    self.frame.setItem(num, 0, pathItem)
+                    self.frame.setItem(num, 1, ansItem)
+                    self.frame.setItem(num, 2, expItem)
+                    tarId = deepcopy(num)
+                    if tarId != -1:
+                        button = QPushButton("删除")
+                        button.clicked.connect(lambda: self.delItem(tarId))
+                        self.frame.setCellWidget(num, 3, button)
+        except:
+            self.status.showMessage("Load State OK!")
+            pass
 
     def delItem(self, row=1):
         ans = self.__findDict(row)
@@ -127,56 +177,29 @@ class FineTune(QWidget):
         return self.allFile.index(value)
 
     def fineTune(self):
-        import sys
-        a = (os.path.abspath(sys.argv[0])[0: os.path.abspath(sys.argv[0]).find('im2latex')])
-        b = 'im2latex'
-        root = os.path.join(a, b)
-        for info in self.allFile:
-            tarFile, tarAns, expName = info["path"], info["ans"], info["exp"]
-            trueFile = os.path.join(tarFile, 'right')
-            falseFile = os.path.join(tarFile, 'wrong')
-            dict = {trueFile: 4, falseFile: 5}
-            finetuneResPath = os.path.join(root, 'finetune', expName)
-            assetPath = os.path.join(root, 'asset', 'output')
-            oriID2FORMULA = os.path.join(root, 'ID2FORMULA.json')
-            pythonPath = os.path.join(root, 'jerry_preprocess.py')
-            try:
-                shutil.rmtree(finetuneResPath)
-                print("+" * 88)
-                print(finetuneResPath, " has been deleted!")
-                self.status.showMessage(finetuneResPath + " has been deleted!")
-                print("+" * 88)
-            except:
-                pass
+        if self.allFile == {}:
+            return
 
-            if not os.path.exists(finetuneResPath):
-                os.mkdir(finetuneResPath)
+        for dict in self.allFile:
+            pythonPath = os.path.join(self.root, 'finetuneMultiAns.py')
+            if dict['multi']:
+                pythonCmd = 'python %s -d \"%s\" -e \"%s\" -s \"%s\"' % (pythonPath, dict['path'], dict['exp'], dict['ans'])
+            else:
+                pythonCmd = 'python %s -d \"%s\" -e \"%s\" -a \"%s\"' % (pythonPath, dict['path'], dict['exp'], dict['ans'])
+            os.system(pythonCmd)
 
-            with open(oriID2FORMULA, 'r') as file:
-                id2formula_list = json.load(file)
-            id2formula_list.append({"(4,0)": tarAns})
-            id2formula_list.append({"(5,0)": "{ }"})
-            with open(os.path.join(finetuneResPath, 'ID2FORMULA.json'), 'w') as file:
-                json.dump(id2formula_list, file)
-            print("+" * 88)
-            print('Now Json Has Been Saved.')
-            self.status.showMessage('Now Json Has Been Saved.')
-            print("+" * 88)
-            cmd = "python %s --ROOT \"%s\" --ORIGIN_PATH \"%s\" --SUP_NAME2ID \"%s\"" % (pythonPath, finetuneResPath, assetPath, dict)
-            self.status.showMessage("Waiting...")
-            os.system(cmd)
-            self.status.showMessage(expName + " preprocess OK!")
-            saveDir = os.path.join(root, 'ckpt')
+        for dict in self.allFile:
+            fileName = dict['exp']
             epoches = self.spinbox.value()
-            train_cmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --dropout=0.4 --batch_size=16 --epoches=%s --exp=\"%s\"" % (
-            finetuneResPath, saveDir, epoches, expName)
-            print("+" * 88)
-            print("train CMD: ", train_cmd)
+            dataPath = os.path.join(self.root, 'finetune', fileName)
+            savedir = os.path.join(self.root, 'ckpt')
+            pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --dropout=0.4 --batch_size=16 --epoches=%s --exp=\"%s\"" % (
+            dataPath, savedir, epoches, fileName)
             if torch.cuda.is_available():
-                self.status.showMessage("Trianing " + expName)
-                os.system(train_cmd)
+                os.system(pythoncmd)
             else:
                 self.status.showMessage("NO CUDA!")
+                print(pythoncmd)
 
 
 

@@ -1,6 +1,5 @@
 {
-  "dataPath": "ckpt/best_ckpt.pt",
-  "expName": "./Jerry/Jerry2018T10BAK",
+  "expName": "T1_1",
   "csvPath": "/Users/mazeyu/PycharmProjects/autoscore/2018T10/tst",
   "ans": "./results/result.txt",
   "colName": "T1_1"

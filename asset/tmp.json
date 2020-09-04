@@ -1,0 +1,1 @@
+[{"id": 0, "path": "/Users/mazeyu/Desktop/papers/T1_1", "ans": "{{ 3 , 4 }}", "exp": "exp1", "multi": false}, {"id": 1, "path": "/Users/mazeyu/Desktop/papers/T1_2", "ans": "3", "exp": "exp2", "multi": false}, {"id": 2, "path": "/Users/mazeyu/Desktop/papers/T1_3", "ans": "{0:'( - inf , 0 )', 1:'x < 0', 2:'x E ( - inf , 0 )', 3:'{{ x | x < < 0 }}'}", "exp": "exp3", "multi": true}]
