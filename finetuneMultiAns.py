@@ -31,7 +31,7 @@ b = 'im2latex'
 root = os.path.join(a, b)  # /Users/mazeyu/GithubProjects/im2latex
 
 # 原始训练集，可以后期修改
-NAME2ID = {'手写填空-分式-1': 0, '手写填空-数字序列-1':1, '手写填空-根式-1':2, '手写填空-集合-1':3}
+NAME2ID = {'手写填空-分式-1': 0, '手写填空-数字序列-1':1, '手写填空-根式-1':2, '手写填空-集合-1':3, '手写填空-集合-2':4, '手写填空-根式-集合-分式-混合':5}
 
 # 原始的ID2FORMULA.json
 with open(os.path.join(root, 'ID2FORMULA.json'), 'r') as file:
