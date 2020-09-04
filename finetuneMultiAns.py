@@ -30,6 +30,9 @@ a = (os.path.abspath(sys.argv[0])[0: os.path.abspath(sys.argv[0]).find('im2latex
 b = 'im2latex'
 root = os.path.join(a, b)  # /Users/mazeyu/GithubProjects/im2latex
 
+if not os.path.exists(os.path.join(root, 'finetune')):
+    os.mkdir(os.path.join(root, 'finetune'))
+
 # 原始训练集，可以后期修改
 NAME2ID = {'手写填空-分式-1': 0, '手写填空-数字序列-1':1, '手写填空-根式-1':2, '手写填空-集合-1':3, '手写填空-集合-2':4, '手写填空-根式-集合-分式-混合':5}
 
