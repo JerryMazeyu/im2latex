@@ -57,6 +57,24 @@ class LoadTensorFromPath(Dataset):
         self.imgList = filter(lambda x: x.endswith('jpg') or x.endswith('png'), os.listdir(path))
         self.imgList = [os.path.join(path, x) for x in self.imgList]
         self.transform = transform
+        self.imgs = [self.transform(Image.open(x)).unsqueeze(0) for x in self.imgList]
+
+    def __getitem__(self, index):
+        return self.imgs[index], self.imgList[index]
+
+    def __len__(self):
+        return len(self.imgList)
+
+
+
+class LoadTensorFromList(Dataset):
+    def __init__(self, list_, transform = transform):
+        """
+        在inference中可以用到，从指定路径导入DataSet
+        """
+        self.imgList = filter(lambda x: x.endswith('jpg') or x.endswith('png'), list_)
+        self.imgList = [x for x in self.imgList]
+        self.transform = transform
 
     def __getitem__(self, index):
         tmp = self.transform(Image.open(self.imgList[index]))

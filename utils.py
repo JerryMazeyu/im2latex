@@ -184,7 +184,7 @@ def stripNonsense(ans:str):
 
 def toStandardLatex(ans:str):
     ans = stripNonsense(ans)
-    mapping = {'{{': '\{', '}}': '\}', 'frac':'\\frac', 'sqrt':'\sqrt', 'E':'\in', 'U':'\\bigcup', 'inf':'\infty', 'pi':'\pi'}
+    mapping = {'{{': '\{', '}}': '\}', 'frac':'\\frac', 'sqrt':'\sqrt', 'E':'\in', 'U':'\\bigcup', 'inf':'\infty', 'pi':'\pi', 'p1': 'P_{1}', 'p2': 'P_{2}', 'p3': 'P_{3}', 'p4': 'P_{4}'}
     res = []
     for i in ans.split(" "):
         repSym = mapping.get(i, None)
@@ -193,4 +193,16 @@ def toStandardLatex(ans:str):
         else:
             res.append(i)
     return "".join(res)
+
+def splitPath(path, numOfGroup=4):
+    def list_of_groups(init_list, children_list_len):
+        list_of_groups = zip(*(iter(init_list),) * children_list_len)
+        end_list = [list(i) for i in list_of_groups]
+        count = len(init_list) % children_list_len
+        end_list.append(init_list[-count:]) if count != 0 else end_list
+        return end_list
+    allFile = list(filter(lambda x: x.endswith('jpg') or x.endswith('png'), os.listdir(path)))
+    allFile = [os.path.join(path, x) for x in allFile]
+    return list_of_groups(allFile, len(allFile)//numOfGroup+numOfGroup)
+
 

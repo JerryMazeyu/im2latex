@@ -2,100 +2,77 @@
 from os.path import join
 import argparse
 import os
-
+import time
 import torch
 from tqdm import tqdm
 from build_vocab import load_vocab
 from model import LatexProducer, Im2LatexModel
 from data import LoadTensorFromPath
-import datetime
+
 import json
 from utils import toStandardLatex
+import multiprocessing as mp
 
 
-def main():
+parser = argparse.ArgumentParser(description="Im2Latex Evaluating Program")
+parser.add_argument('--model_path', default="", help='path of the evaluated model')
+parser.add_argument('--vocab_path', default="", help="where is your vocab.pkl")
+parser.add_argument("--data_path", type=str, default="", help="The dataset's dir")
+parser.add_argument("--result_path", type=str, default="", help="The file to store result")
+parser.add_argument('-i', '--info', default="/Users/mazeyu/GithubProjects/im2latex/param.json", help="JsonByShiJiang")
 
-    parser = argparse.ArgumentParser(description="Im2Latex Evaluating Program")
-    parser.add_argument('--model_path', default='ckpt/best_ckpt.pt',
-                        help='path of the evaluated model')
-    parser.add_argument('--vocab_path', default='./Jerry/Jerry2018T10', help="where is your vocab.pkl")
-
-    # model args
-    parser.add_argument("--data_path", type=str,
-                        default="/Users/mazeyu/PycharmProjects/autoscore/2018T10bak/true", help="The dataset's dir")
-    parser.add_argument("--cuda", action='store_true',
-                        default=False, help="Use cuda or not")
-    parser.add_argument("--beam_size", type=int, default=5)
-    parser.add_argument("--result_path", type=str,
-                        default="./results/result.txt", help="The file to store result")
-    parser.add_argument("--max_len", type=int,
-                        default=64, help="Max step of decoding")
-    parser.add_argument('-i', '--info', default="", help="JsonByShiJiang")
-    parser.add_argument('--expname', default="", help="experiment name")
-    parser.add_argument('--csvPath', default="/Users/mazeyu/PycharmProjects/autoscore/2018cksx.csv", help="experiment name")
-    parser.add_argument('--ans', default='( sqrt { 3 } / 3 , + inf )')
-    parser.add_argument('--colName', default='T11_1')
-
-    args = parser.parse_args()
+args = parser.parse_args()
 
 
-    if args.info != "":
-        try:
-            with open(args.info, 'r') as file:
-                params = json.load(file)
-            for (k, v) in params.items():
-                setattr(args, k, v)
-        except:
-            pass
+beamSize = 5
+maxLen = 64
+
+if args.info != "":
+    try:
+        with open(args.info, 'r') as file:
+            params = json.load(file)
+        for (k, v) in params.items():
+            setattr(args, k, v)
+    except:
+        pass
+
+# 读入词典模型
+vocab = load_vocab(args.vocab_path)
+use_cuda = True if torch.cuda.is_available() else False
+
+# 加载模型
+if not use_cuda:
+    checkpoint = torch.load(join(args.model_path), map_location=torch.device('cpu'))
+else:
+    checkpoint = torch.load(join(args.model_path))
+model_args = checkpoint['args']
 
 
-    # 加载模型
-    if not args.cuda:
-        checkpoint = torch.load(join(args.model_path), map_location=torch.device('cpu'))
-    else:
-        checkpoint = torch.load(join(args.model_path))
-    model_args = checkpoint['args']
+model = Im2LatexModel(
+    len(vocab), model_args.emb_dim, model_args.dec_rnn_h,
+    add_pos_feat=model_args.add_position_features,
+    dropout=model_args.dropout
+)
+model.load_state_dict(checkpoint['model_state_dict'])
 
-    # 读入词典模型
-    vocab = load_vocab(args.vocab_path)
-    use_cuda = True if args.cuda and torch.cuda.is_available() else False
+latex_producer = LatexProducer(
+    model, vocab, max_len=maxLen,
+    use_cuda=use_cuda, beam_size=beamSize)
 
-    model = Im2LatexModel(
-        len(vocab), model_args.emb_dim, model_args.dec_rnn_h,
-        add_pos_feat=model_args.add_position_features,
-        dropout=model_args.dropout
-    )
-    model.load_state_dict(checkpoint['model_state_dict'])
+tensors_ = LoadTensorFromPath(args.data_path)
 
-    latex_producer = LatexProducer(
-        model, vocab, max_len=args.max_len,
-        use_cuda=use_cuda, beam_size=args.beam_size)
+res = []
+def setcallback(x):
+    res.append({'name': x[1], 'predict':x[0]})
 
-    # 加载图像数据
-    tensors_ = LoadTensorFromPath(args.data_path)
+def multiplication(model, tensor, name):
+    return toStandardLatex(model(tensor)[0]), name
 
-    if not os.path.exists(args.result_path):
-        os.mknod(args.result_path)
-
-
-    results = []
-
+if __name__ == '__main__':
+    pool = mp.Pool(10)
     for img, name in tqdm(tensors_, ncols=60):
-        if use_cuda:
-            img = img.cuda()
-        res = latex_producer(img)
-        res = toStandardLatex(res[0])
-        results.append({"name": os.path.basename(name), "predict": res})
-
+        pool.apply_async(func=multiplication, args=(latex_producer, img, name), callback=setcallback)
+    pool.close()
+    pool.join()
     with open(args.result_path, 'w') as file:
-        file.writelines(json.dumps({"result": results}))
-
-    # from jerry_evaluation import jerryEvaluation
-    # jerryEvaluation(trueFile=os.path.join('results', time_info + 'true.txt'), falseFile=os.path.join('results', time_info + 'false.txt'), expName=args.expname, csvPath=args.csvPath, colName=args.colName)
-
-
-
-
-
-if __name__ == "__main__":
-    main()  # 一般来说直接执行 python inference.py 即可
+        file.writelines(json.dumps({"result": res}))

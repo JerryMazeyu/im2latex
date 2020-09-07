@@ -8,16 +8,23 @@ import torch
 from tqdm import tqdm
 from build_vocab import load_vocab
 from model import LatexProducer, Im2LatexModel
-from data import LoadTensorFromPath
+from data import LoadTensorFromPath, LoadTensorFromList
 import datetime
 import json
-from utils import stripNonsense
+# from utils import stripNonsense, toStandardLatex, splitPath
+# import _thread
+# import queue
+import time
+from tqdm import tqdm
+import multiprocessing as mp
+
 
 parser = argparse.ArgumentParser(description="Im2Latex Evaluating Program")
 parser.add_argument('-d', '--dataPath', default="", help='Test File')
 parser.add_argument('-i', '--info', default="", help="JsonByShiJiang")
-parser.add_argument('-e', '--expName', default="", help="experiment name")
-parser.add_argument('-c', '--csvPath', default="", help="experiment name")
+parser.add_argument('-e', '--expName', default="", help="Experiment Name")
+parser.add_argument('-v', '--evaluation', default="", help="If Evaluate")
+parser.add_argument('-c', '--csvPath', default="", help="csv Path")
 parser.add_argument('-a', '--ans', default="", help="( 3 , + inf )  or ///['(3 , + inf )', 'x > 3']")
 parser.add_argument('-cn', '--colName', default="")
 
@@ -34,7 +41,9 @@ dataPath = args.dataPath
 modelPath = os.path.join(root, 'ckpt', '%s.pt' % expName)
 cuda = True if torch.cuda.is_available() else False
 beamSize = 5
-resultPath = os.path.join(root, 'results', 'result.txt')
+resultPath = os.path.join(root, 'results', '%s.txt' % expName)
+if os.path.exists(resultPath):
+    os.remove(resultPath)
 maxLen = 64
 
 if not args.colName:
@@ -78,26 +87,24 @@ latex_producer = LatexProducer(
         model, vocab, max_len=maxLen,
         use_cuda=cuda, beam_size=beamSize)
 
-# 加载图像数据
 tensors_ = LoadTensorFromPath(dataPath)
 
-if not os.path.exists(resultPath):
-    os.mknod(resultPath)
+res = []
+def setcallback(x):
+    res.append({'name': x[1], 'predict':x[0]})
+
+def multiplication(model, tensor, name):
+    return model(tensor)[0], name
+
+if __name__ == '__main__':
+    pool = mp.Pool(10)
+    for img, name in tqdm(tensors_, ncols=60):
+        pool.apply_async(func=multiplication, args=(latex_producer, img, name), callback=setcallback)
+    pool.close()
+    pool.join()
+    with open(resultPath, 'w') as file:
+        file.writelines(json.dumps({"result": res}))
 
 
-time_info = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M:%S')
-file_true = open(os.path.join('./results', time_info + 'true.txt'), 'w')
-file_false = open(os.path.join('./results', time_info + 'false.txt'), 'w')
-for img, name in tqdm(tensors_, ncols=60):
-    if cuda:
-        img = img.cuda()
-    res = latex_producer(img)
-    if stripNonsense(res[0]) in answer:
-        file_true.writelines(name)
-        file_true.writelines('\n')
-    else:
-        file_false.writelines(name + " " + res[0])
-        file_false.writelines('\n')
-file_false.close()
-file_true.close()
+
 
