@@ -42,6 +42,8 @@ class FineTune(QWidget):
         # self.button4.clicked.connect()
         self.button5 = QPushButton("保存信息")
         self.button5.clicked.connect(self.saveState)
+        self.button6 = QPushButton("删除")
+        self.button6.clicked.connect(self.delItem)
 
 
         self.input1 = QLineEdit()
@@ -52,12 +54,14 @@ class FineTune(QWidget):
         self.input2.setPlaceholderText("输入")
 
         self.checkbox = QCheckBox("多个？")
+        self.checkbox1 = QCheckBox("结合")
 
         self.spinbox = QSpinBox()
         self.spinbox.setRange(5, 1000)
 
         self.trainlayout = QGridLayout()
-        self.trainlayout.addWidget(self.button3, 0, 0, 1, 6)
+        self.trainlayout.addWidget(self.checkbox1, 0, 0, 1, 1)
+        self.trainlayout.addWidget(self.button3, 0, 1, 1, 5)
         self.trainlayout.addWidget(self.spinbox, 0, 6, 1, 1)
         self.trainlayout.addWidget(QLabel("轮"), 0, 7, 1, 1)
         self.trainlayout.addWidget(self.button4, 0, 8, 1, 1)
@@ -69,8 +73,8 @@ class FineTune(QWidget):
 
 
 
-        self.frame = QTableWidget(100,4)
-        self.frame.setHorizontalHeaderLabels(['文件', '答案', '实验名称', '操作'])
+        self.frame = QTableWidget(100,3)
+        self.frame.setHorizontalHeaderLabels(['文件', '答案', '实验名称'])
         self.frame.setShowGrid(False)
         self.frame.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.frame.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -88,7 +92,8 @@ class FineTune(QWidget):
         self.grid.addWidget(self.input1, 1, 1)
         self.grid.addWidget(self.label3, 0, 2)
         self.grid.addWidget(self.input2, 1, 2)
-        self.grid.addWidget(self.button2, 2, 0, 1, 3)
+        self.grid.addWidget(self.button2, 2, 0, 1, 2)
+        self.grid.addWidget(self.button6, 2, 2, 1, 1)
         self.grid.addWidget(self.frame, 3, 0, 12, 3)
         self.grid.addLayout(self.trainlayout, 15, 0, 1, 3)
         self.grid.addWidget(self.status, 16, 0, 1, 3)
@@ -119,10 +124,7 @@ class FineTune(QWidget):
             self.frame.setItem(num, 2, expItem)
             tarId = deepcopy(num)
             if tarId != -1:
-                button = QPushButton("删除")
-                button.clicked.connect(lambda: self.delItem(tarId))
-                self.frame.setCellWidget(num, 3, button)
-                self.allFile.append({"id": tarId, "path": self.file, "ans": self.input1.text(), "exp": self.input2.text(), "multi":self.checkbox.isChecked()})
+                self.allFile.append({"path": self.file, "ans": self.input1.text(), "exp": self.input2.text(), "multi":self.checkbox.isChecked()})
                 self.button1.setText("选择文件")
                 self.input1.setText("")
                 self.input2.setText("")
@@ -141,37 +143,29 @@ class FineTune(QWidget):
             with open(tmpfile, 'r') as file:
                 state = json.load(file)
                 self.allFile = state
-                for dict in state:
-                    num = dict['id']
+                for num, dict in enumerate(state):
                     pathItem = QTableWidgetItem(dict['path'])
                     ansItem = QTableWidgetItem(dict['ans'] + "  <" + str(dict['multi']) + ">")
                     expItem = QTableWidgetItem(dict['exp'])
                     self.frame.setItem(num, 0, pathItem)
                     self.frame.setItem(num, 1, ansItem)
                     self.frame.setItem(num, 2, expItem)
-                    tarId = deepcopy(num)
-                    if tarId != -1:
-                        button = QPushButton("删除")
-                        button.clicked.connect(lambda: self.delItem(tarId))
-                        self.frame.setCellWidget(num, 3, button)
         except:
             self.status.showMessage("Load State OK!")
             pass
 
-    def delItem(self, row=1):
-        ans = self.__findDict(row)
-        if ans:
-            tarRow = self.__findIndex(ans)
-            self.allFile.remove(ans)
-            self.frame.removeRow(tarRow)
+    def delItem(self):
+        row = self.frame.currentRow()
+        if row != -1:
+            ans = self.allFile[row]
+            if ans:
+                tarRow = self.__findIndex(ans)
+                self.allFile.remove(ans)
+                self.frame.removeRow(tarRow)
 
 
 
-    def __findDict(self, value):
-        for i in self.allFile:
-            if i['id'] == value:
-                return i
-        return False
+
 
     def __findIndex(self, value):
         return self.allFile.index(value)
@@ -193,7 +187,11 @@ class FineTune(QWidget):
             epoches = self.spinbox.value()
             dataPath = os.path.join(self.root, 'finetune', fileName)
             savedir = os.path.join(self.root, 'ckpt')
-            pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --dropout=0.4 --batch_size=16 --epoches=%s --exp=\"%s\"" % (
+            if self.checkbox1.isChecked():
+                pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --epoches=%s --exp=\"%s\" --from_check_point" % (
+                    dataPath, savedir, epoches, fileName)
+            else:
+                pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --epoches=%s --exp=\"%s\"" % (
             dataPath, savedir, epoches, fileName)
             if torch.cuda.is_available():
                 os.system(pythoncmd)

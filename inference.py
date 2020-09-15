@@ -8,10 +8,10 @@ from tqdm import tqdm
 from build_vocab import load_vocab
 from model import LatexProducer, Im2LatexModel
 from data import LoadTensorFromPath
-
 import json
 from utils import toStandardLatex
 import multiprocessing as mp
+from torch.utils.data import DataLoader
 
 
 parser = argparse.ArgumentParser(description="Im2Latex Evaluating Program")
@@ -61,18 +61,46 @@ latex_producer = LatexProducer(
 
 tensors_ = LoadTensorFromPath(args.data_path)
 
+tensorsDataLoader = DataLoader(tensors_, batch_size=500, num_workers=4)
+
 res = []
-def setcallback(x):
-    res.append({'name': x[1], 'predict':x[0]})
+imgNameList = []
+for (imgs, imgNames) in tqdm(tensorsDataLoader, ncols=60):
+    tmpRes = latex_producer(imgs)
+    res+=tmpRes
+    imgNameList+=imgNames
 
-def multiplication(model, tensor, name):
-    return toStandardLatex(model(tensor)[0]), name
+res = [toStandardLatex(x) for x in res]
+finalRes = [{'name': imgNameList[x], 'predict': res[x]} for x in range(len(res))]
+resJson = {'result': finalRes}
+with open(args.result_path, 'w') as file:
+    json.dump(resJson, file)
 
-if __name__ == '__main__':
-    pool = mp.Pool(10)
-    for img, name in tqdm(tensors_, ncols=60):
-        pool.apply_async(func=multiplication, args=(latex_producer, img, name), callback=setcallback)
-    pool.close()
-    pool.join()
-    with open(args.result_path, 'w') as file:
-        file.writelines(json.dumps({"result": res}))
+
+
+
+
+# res = []
+# def setcallback(x):
+#     """多进程的写入"""
+#     with open('tmp.txt', 'a+') as file:
+#         line = str({'name': x[1], 'predict':x[0]}) + '\n'
+#         file.write(line)
+#
+# def multiplication(model, tensor, name):
+#     return toStandardLatex(model(tensor)[0]), name
+#
+# if __name__ == '__main__':
+#     pool = mp.Pool(10)
+#     for img, name in tqdm(tensors_, ncols=60):
+#         pool.apply_async(func=multiplication, args=(latex_producer, img, name), callback=setcallback)
+#     pool.close()
+#     pool.join()
+#     pat = re.compile(r'\\+')
+#     with open(args.result_path, 'w') as file:
+#         with open('tmp.txt', 'r') as f:
+#             res = f.readlines()
+#             res = [i.rstrip('\n') for i in res]
+#             res = [str(x).replace("\\\\", str('')) for x in res]
+#         file.writelines(json.dumps({"result": res}))
+#     os.remove('tmp.txt')

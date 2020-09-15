@@ -30,7 +30,7 @@ def main():
     parser.add_argument("--max_len", type=int,
                         default=150, help="Max size of formula")
     parser.add_argument("--dropout", type=float,
-                        default=0., help="Dropout probility")
+                        default=0.4, help="Dropout probility")
     parser.add_argument("--cuda", action='store_true',
                         default=True, help="Use cuda or not")
     parser.add_argument("--batch_size", type=int, default=16)  # 指定batch_size
@@ -130,7 +130,7 @@ def main():
         epoch = checkpoint['epoch']
         lr_scheduler.load_state_dict(checkpoint['lr_sche'])
         # init trainer from checkpoint
-        max_epoch = epoch + args.epoches  # 修改一个bug
+        max_epoch = epoch + max_epoch  # 修改一个bug
         print('From %s To %s...' % (epoch, max_epoch))
         trainer = Trainer(optimizer, model, lr_scheduler,
                           train_loader, val_loader, args,

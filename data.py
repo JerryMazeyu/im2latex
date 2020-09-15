@@ -58,12 +58,14 @@ class LoadTensorFromPath(Dataset):
         self.imgList = [os.path.join(path, x) for x in self.imgList]
         self.transform = transform
         self.imgs = [self.transform(Image.open(x)).unsqueeze(0) for x in self.imgList]
+        self.imgs = [self.transform(Image.open(x)) for x in self.imgList]
 
     def __getitem__(self, index):
         return self.imgs[index], self.imgList[index]
 
     def __len__(self):
         return len(self.imgList)
+
 
 
 
