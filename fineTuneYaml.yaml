@@ -1,0 +1,11 @@
+Files:
+  - /Users/mazeyu/Desktop/im2latex_assets/papers/T1_1
+  - /Users/mazeyu/Desktop/im2latex_assets/papers/T1_2
+  - /Users/mazeyu/Desktop/im2latex_assets/papers/T1_3
+Answers:
+  - '{{ 3 , 4 }}'
+  - 3
+  - 0: ( - inf , 0 )
+    1: x < 0
+    2: x E ( - inf , 0 )
+    3: '{{ x | x < 0 }}'

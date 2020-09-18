@@ -20,6 +20,7 @@ parser.add_argument('--vocab_path', default="", help="where is your vocab.pkl")
 parser.add_argument("--data_path", type=str, default="", help="The dataset's dir")
 parser.add_argument("--result_path", type=str, default="", help="The file to store result")
 parser.add_argument('-i', '--info', default="/Users/mazeyu/GithubProjects/im2latex/param.json", help="JsonByShiJiang")
+# parser.add_argument('-i', '--info', default="", help="JsonByShiJiang")
 
 args = parser.parse_args()
 
@@ -61,7 +62,7 @@ latex_producer = LatexProducer(
 
 tensors_ = LoadTensorFromPath(args.data_path)
 
-tensorsDataLoader = DataLoader(tensors_, batch_size=500, num_workers=4)
+tensorsDataLoader = DataLoader(tensors_, batch_size=50, num_workers=4)
 
 res = []
 imgNameList = []

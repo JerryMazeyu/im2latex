@@ -7,6 +7,7 @@ import json
 import shutil
 import torch
 from copy import deepcopy
+import yaml
 
 class FineTune(QWidget):
     def __init__(self):
@@ -174,30 +175,53 @@ class FineTune(QWidget):
         if self.allFile == {}:
             return
 
-        for dict in self.allFile:
-            pythonPath = os.path.join(self.root, 'finetuneMultiAns.py')
-            if dict['multi']:
-                pythonCmd = 'python %s -d \"%s\" -e \"%s\" -s \"%s\"' % (pythonPath, dict['path'], dict['exp'], dict['ans'])
-            else:
-                pythonCmd = 'python %s -d \"%s\" -e \"%s\" -a \"%s\"' % (pythonPath, dict['path'], dict['exp'], dict['ans'])
+        buildInOne = self.checkbox1.isChecked()
+        pythonPath = os.path.join(self.root, 'finetuneMultiAns.py')
+        if buildInOne:
+            Files = []
+            Answers = []
+            for dict in self.allFile:
+                Files.append(dict['path'])
+                if dict['multi']:
+                    Answers.append(eval(dict['ans']))
+                else:
+                    Answers.append(dict['ans'])
+            yamlDict = {'Files': Files, 'Answers': Answers}
+            with open(os.path.join(self.root, 'asset', 'fineTuneYaml.yaml'), 'w') as file:
+                yaml.dump(yamlDict, file)
+            pythonCmd = 'python %s -i \"%s\"' % (pythonPath, os.path.join(self.root, 'asset', 'fineTuneYaml.yaml'))
             os.system(pythonCmd)
-
-        for dict in self.allFile:
-            fileName = dict['exp']
+            fileName = 'all'
             epoches = self.spinbox.value()
             dataPath = os.path.join(self.root, 'finetune', fileName)
             savedir = os.path.join(self.root, 'ckpt')
-            if self.checkbox1.isChecked():
-                pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --epoches=%s --exp=\"%s\" --from_check_point" % (
-                    dataPath, savedir, epoches, fileName)
-            else:
-                pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --epoches=%s --exp=\"%s\"" % (
-            dataPath, savedir, epoches, fileName)
+            pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --epoches=%s --exp=\"%s\" --from_check_point" % (dataPath, savedir, epoches, fileName)
             if torch.cuda.is_available():
                 os.system(pythoncmd)
             else:
                 self.status.showMessage("NO CUDA!")
                 print(pythoncmd)
+        else:
+            for dict in self.allFile:
+                if dict['multi']:
+                    pythonCmd = 'python %s -d \"%s\" -e \"%s\" -s \"%s\"' % (pythonPath, dict['path'], dict['exp'], dict['ans'])
+                else:
+                    pythonCmd = 'python %s -d \"%s\" -e \"%s\" -a \"%s\"' % (pythonPath, dict['path'], dict['exp'], dict['ans'])
+                os.system(pythonCmd)
+            # pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --epoches=%s --exp=\"%s\" --from_check_point" % (dataPath, savedir, epoches, fileName)
+
+            for dict in self.allFile:
+                fileName = dict['exp']
+                epoches = self.spinbox.value()
+                dataPath = os.path.join(self.root, 'finetune', fileName)
+                savedir = os.path.join(self.root, 'ckpt')
+                pythoncmd = "python train.py --data_path=\"%s\" --save_dir=\"%s\" --epoches=%s --exp=\"%s\"" % (
+                dataPath, savedir, epoches, fileName)
+                if torch.cuda.is_available():
+                    os.system(pythoncmd)
+                else:
+                    self.status.showMessage("NO CUDA!")
+                    print(pythoncmd)
 
 
 

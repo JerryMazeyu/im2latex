@@ -56,8 +56,15 @@ class LoadTensorFromPath(Dataset):
         """
         self.imgList = filter(lambda x: x.endswith('jpg') or x.endswith('png'), os.listdir(path))
         self.imgList = [os.path.join(path, x) for x in self.imgList]
+        for i in self.imgList:
+            try:
+                Image.open(i)
+            except:
+                print(f"{i} break, remove it!")
+                os.remove(i)
+                self.imgList.remove(i)
         self.transform = transform
-        self.imgs = [self.transform(Image.open(x)).unsqueeze(0) for x in self.imgList]
+        # self.imgs = [self.transform(Image.open(x)).unsqueeze(0) for x in self.imgList]
         self.imgs = [self.transform(Image.open(x)) for x in self.imgList]
 
     def __getitem__(self, index):

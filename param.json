@@ -1,6 +1,6 @@
 {
-  "model_path": "/Users/mazeyu/GithubProjects/im2latex/ckpt/T1_8.pt",
-  "vocab_path": "/Users/mazeyu/GithubProjects/im2latex/finetune/T1_8",
-  "data_path": "/Users/mazeyu/GithubProjects/im2latex/asset/tstData/T1_8",
-  "result_path": "/Users/mazeyu/GithubProjects/im2latex/results/T1_8.txt"
+  "model_path": "/Users/mazeyu/GithubProjects/im2latex/ckpt/exp1.pt",
+  "vocab_path": "/Users/mazeyu/GithubProjects/im2latex/finetune/exp1",
+  "data_path": "/Users/mazeyu/Desktop/im2latex_assets/201706数据/201706-1/processed/T1_1",
+  "result_path": "/Users/mazeyu/GithubProjects/im2latex/results/exp1.txt"
 }
