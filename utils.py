@@ -184,7 +184,7 @@ def stripNonsense(ans:str):
 
 def toStandardLatex(ans:str):
     ans = stripNonsense(ans)
-    mapping = {'{{': '\{', '}}': '\}', 'frac':'\\frac', 'sqrt':'\sqrt', 'E':'\in', 'U':'\\bigcup', 'inf':'\infty', 'pi':'\pi', 'p1': 'P_{1}', 'p2': 'P_{2}', 'p3': 'P_{3}', 'p4': 'P_{4}'}
+    mapping = {'{{': '\{', '}}': '\}', 'frac':'\\frac', 'sqrt':'\sqrt', 'E':'\in', 'U':'\\cup', 'inf':'\infty', 'pi':'\pi', 'p1': 'P_{1}', 'p2': 'P_{2}', 'p3': 'P_{3}', 'p4': 'P_{4}'}
     res = []
     for i in ans.split(" "):
         repSym = mapping.get(i, None)
