@@ -19,7 +19,7 @@ parser.add_argument('--model_path', default="", help='path of the evaluated mode
 parser.add_argument('--vocab_path', default="", help="where is your vocab.pkl")
 parser.add_argument("--data_path", type=str, default="", help="The dataset's dir")
 parser.add_argument("--result_path", type=str, default="", help="The file to store result")
-parser.add_argument('-i', '--info', default="/Users/mazeyu/GithubProjects/im2latex/param.json", help="JsonByShiJiang")
+parser.add_argument('-i', '--info', default="param.json", help="JsonByShiJiang")
 # parser.add_argument('-i', '--info', default="", help="JsonByShiJiang")
 
 args = parser.parse_args()
@@ -72,8 +72,8 @@ for (imgs, imgNames) in tqdm(tensorsDataLoader, ncols=60):
     imgNameList+=imgNames
 
 res = [toStandardLatex(x) for x in res]
-finalRes = [{'name': imgNameList[x], 'predict': res[x]} for x in range(len(res))]
-resJson = {'result': finalRes}
+finalRes = [{'name': os.path.basename(imgNameList[x]), 'predict': res[x]} for x in range(len(res))]
+resJson = {'results': finalRes}
 with open(args.result_path, 'w') as file:
     json.dump(resJson, file)
 
