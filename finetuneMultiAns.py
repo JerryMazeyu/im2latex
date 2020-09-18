@@ -29,8 +29,8 @@ parser.add_argument("-a", "--answer", default="", help="如果是一个答案的
 parser.add_argument("-s", "--sub", default="{}", help="如果多个答案的，则写入字典")
 # parser.add_argument("-s", "--sub", default="{0:'0',1:'1',2:'2',3:'3'}", help="如果多个答案的，则写入字典")
 
-# parser.add_argument("-i", "--info", default="fineTuneYaml.yaml", help="如果整体训练，需要传入一个yaml文件")
-parser.add_argument("-i", "--info", default="", help="如果整体训练，需要传入一个yaml文件")
+parser.add_argument("-i", "--info", default="./asset/fineTuneYaml.yaml", help="如果整体训练，需要传入一个yaml文件")
+# parser.add_argument("-i", "--info", default="", help="如果整体训练，需要传入一个yaml文件")
 args = parser.parse_args()
 
 # 找到项目的根目录的绝对路径
@@ -134,7 +134,7 @@ class BuildTrainData():
                 else:  # 处理单个情况
                     self.multi.append(False)
                     idx += 1
-                    answerDict["(%s,%s)" % (self.start, ind)] = str(self.subId2Formula[ind])
+                    answerDict["(%s,%s)" % (self.start, ind)] = str(self.subId2Formula[idx-1])
                     ind += 1
         print("Right Ans Is ", answerDict)
         self.originId2Formula.append(answerDict)
